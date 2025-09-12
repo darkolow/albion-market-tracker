@@ -1,0 +1,1962 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Albion Market Tracker</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #f4f4f4; 
+            margin: 0; 
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container { 
+            max-width: 95vw; 
+            margin: 0 auto; 
+            background: linear-gradient(145deg, #2c3e50, #34495e);
+            padding: 25px; 
+            border-radius: 15px; 
+            border: 3px solid #d4af37;
+            box-shadow: 0 8px 32px rgba(212, 175, 55, 0.2);
+        }
+        h2 {
+            text-align: center;
+            color: #d4af37;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            border-bottom: 2px solid #d4af37;
+            padding-bottom: 10px;
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        input, select, button { 
+            padding: 12px 16px; 
+            border-radius: 8px; 
+            border: 2px solid #d4af37; 
+            background: #34495e;
+            color: #f4f4f4;
+            font-size: 14px;
+            min-width: 120px;
+        }
+        button { 
+            background: linear-gradient(145deg, #d4af37, #b8941f); 
+            color: #2c3e50; 
+            cursor: pointer; 
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        button:hover { 
+            background: linear-gradient(145deg, #f4d03f, #d4af37);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+        }
+        .item-display {
+            text-align: center;
+            margin: 20px 0;
+            background: rgba(52, 73, 94, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #d4af37;
+        }
+        .modal-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.7);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9999;
+        }
+        .modal {
+            background: #222;
+            border-radius: 16px;
+            padding: 30px 20px;
+            max-width: 800px;
+            width: 90vw;
+            box-shadow: 0 8px 32px rgba(212,175,55,0.3);
+            border: 3px solid #d4af37;
+        }
+        .modal-title {
+            color: #d4af37;
+            font-size: 1.3em;
+            margin-bottom: 18px;
+            text-align: center;
+        }
+        .modal-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            justify-content: center;
+        }
+        .modal-item {
+            background: #333;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid #d4af37;
+            width: 110px;
+            transition: box-shadow 0.2s;
+        }
+        .modal-item:hover {
+            box-shadow: 0 0 10px #d4af37;
+            background: #444;
+        }
+        .modal-item img {
+            width: 60px; height: 60px; margin-bottom: 8px; background: #222; border-radius: 8px; border: 1px solid #d4af37;
+        }
+        
+        /* Classes de qualidade */
+        .quality-normal { color: #ecf0f1; }
+        .quality-good { color: #2ecc71; }
+        .quality-exceptional { color: #3498db; }
+        .quality-excellent { color: #9b59b6; }
+        .quality-masterpiece { color: #f39c12; }
+
+        .price {
+            text-align: center;
+            font-weight: bold;
+            color: #d4af37;
+        }
+
+        .date {
+            font-size: 0.9em;
+            color: #95a5a6;
+        }
+        .modal-close {
+            position: absolute; top: 18px; right: 28px; font-size: 2em; color: #d4af37; cursor: pointer; font-weight: bold;
+        }
+        table { 
+            width: 100%; 
+            border-collapse: separate; 
+            border-spacing: 0; 
+            background: rgba(44, 62, 80, 0.9); 
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 20px;
+            font-size: 12px;
+        }
+        th { 
+            background: linear-gradient(145deg, #d4af37, #b8941f); 
+            color: #2c3e50; 
+            padding: 12px 6px; 
+            font-weight: bold;
+            font-size: 11px;
+            text-align: center;
+        }
+        td { 
+            padding: 10px 6px; 
+            text-align: center;
+            border-bottom: 1px solid #34495e;
+        }
+        tr:nth-child(even) { background: rgba(52, 73, 94, 0.3); }
+        tr:hover { background: rgba(212, 175, 55, 0.1); }
+        .quality-normal { color: #95a5a6; }
+        .quality-good { color: #2ecc71; }
+        .quality-exceptional { color: #3498db; }
+        .quality-excellent { color: #9b59b6; }
+        .quality-masterpiece { color: #e74c3c; font-weight: bold; }
+        .price { font-weight: bold; color: #f1c40f; }
+        .date { font-size: 10px; color: #bdc3c7; }
+        #atualizando { 
+            color: #2ecc71; 
+            font-weight: bold; 
+            margin-left: 10px;
+        }
+        label {
+            color: #d4af37;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        .city-separator {
+            height: 3px;
+            background: linear-gradient(90deg, #d4af37, #b8941f, #d4af37);
+            border: none;
+        }
+        .city-separator td {
+            padding: 0;
+            border: none;
+        }
+
+        /* Estilos das abas */
+        .tabs {
+            display: flex;
+            background: #2c3e50;
+            border-bottom: 2px solid #d4af37;
+            margin-bottom: 20px;
+        }
+
+        .tab-button {
+            background: #34495e;
+            color: #ecf0f1;
+            border: none;
+            padding: 15px 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            border-right: 1px solid #2c3e50;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button:hover {
+            background: #4a6741;
+            color: #d4af37;
+        }
+
+        .tab-button.active {
+            background: #d4af37;
+            color: #222;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Estilos dos botões de flip */
+        .flip-button {
+            transition: all 0.3s ease;
+        }
+
+        .flip-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🏰 Albion Market Tracker 🏰</h2>
+        
+        <!-- Sistema de Abas -->
+        <div class="tabs">
+            <button class="tab-button active" onclick="abrirAba('consulta-precos')">📊 CONSULTA DE PREÇOS</button>
+            <button class="tab-button" onclick="abrirAba('flip-mercado')">💰 FLIP DE MERCADO</button>
+        </div>
+
+        <!-- Aba Consulta de Preços -->
+        <div id="consulta-precos" class="tab-content active">
+            <div class="controls">
+                <label for="item">Item Selecionado:</label>
+                <input type="text" id="item" name="item" placeholder="Nenhum item selecionado" readonly style="width:200px;background:#34495e;color:#ecf0f1;border:1px solid #d4af37;">
+                <button type="button" onclick="abrirModalPrincipal()" style="margin-left:10px;background:#d4af37;color:#222;border-radius:8px;padding:8px 16px;font-weight:bold;cursor:pointer;">Selecionar Itens</button>
+                <label for="location">Cidade:</label>
+                <select id="location">
+                    <option value="ALL">Todas</option>
+                    <option value="Caerleon">Caerleon</option>
+                    <option value="Bridgewatch">Bridgewatch</option>
+                    <option value="Martlock">Martlock</option>
+                    <option value="Fort Sterling">Fort Sterling</option>
+                    <option value="Lymhurst">Lymhurst</option>
+                    <option value="Thetford">Thetford</option>
+                    <option value="Black Market">Black Market</option>
+                </select>
+                <button onclick="buscarPreco()">⚔️ Buscar Preços</button>
+                <label>
+                    <input type="checkbox" id="autoUpdateToggle"> 🔄 Auto (30s)
+                </label>
+                <span id="atualizando"></span>
+            </div>
+            <div id="itemIcon" class="item-display"></div>
+            <div class="result" id="result"></div>
+        </div>
+
+        <!-- Aba Flip de Mercado -->
+        <div id="flip-mercado" class="tab-content">
+            <div style="text-align: center; padding: 30px;">
+                <h3 style="color: #d4af37; margin-bottom: 30px;">💰 Flip de Mercado</h3>
+                
+                <!-- Botões de Flip -->
+                <div style="margin-bottom: 40px;">
+                    <button onclick="iniciarFlipAutomatico()" style="background: #d4af37; color: #222; border: none; padding: 15px 30px; margin: 10px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s ease;">
+                        🤖 Flip Automático
+                    </button>
+                    <button onclick="abrirFlipManual()" style="background: #d4af37; color: #222; border: none; padding: 15px 30px; margin: 10px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s ease;">
+                        🎯 Flip Manual
+                    </button>
+                </div>
+
+                <!-- Área de resultados do flip -->
+                <div id="flip-resultados" style="margin-top: 20px;">
+                    <p style="color: #95a5a6; font-style: italic;">Selecione um modo de flip para começar...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="modalItens" style="display:none;"></div>
+    <script>
+        // Definição dos recursos baseado no items.json
+        const recursos = {
+            wood: {
+                nome: 'Madeira',
+                icon: 'T4_WOOD',
+                items: []
+            },
+            fiber: {
+                nome: 'Fibras',
+                icon: 'T4_FIBER',
+                items: []
+            },
+            hide: {
+                nome: 'Couro',
+                icon: 'T4_HIDE',
+                items: []
+            },
+            ore: {
+                nome: 'Minério',
+                icon: 'T4_ORE',
+                items: []
+            },
+            rock: {
+                nome: 'Pedra',
+                icon: 'T4_ROCK',
+                items: []
+            }
+        };
+
+        // Definição dos recursos refinados baseado no items.json
+        const recursosRefinados = {
+            cloth: {
+                nome: 'Tecido',
+                icon: 'T4_CLOTH',
+                items: []
+            },
+            leather: {
+                nome: 'Couro',
+                icon: 'T4_LEATHER',
+                items: []
+            },
+            metalbars: {
+                nome: 'Barras de Metal',
+                icon: 'T4_METALBAR',
+                items: []
+            },
+            stoneblock: {
+                nome: 'Blocos de Pedra',
+                icon: 'T4_STONEBLOCK',
+                items: []
+            },
+            planks: {
+                nome: 'Tábuas',
+                icon: 'T4_PLANKS',
+                items: []
+            }
+        };
+
+        // Definição das bolsas baseado no items.json
+        const bolsas = {
+            normal: {
+                nome: 'Bolsas Normais',
+                icon: 'T4_BAG',
+                items: []
+            },
+            insight: {
+                nome: 'Bolsas de Insight',
+                icon: 'T4_BAG_INSIGHT',
+                items: []
+            }
+        };
+
+        // Função para gerar os itens de bolsas
+        function gerarBolsas() {
+            // Bolsas normais: T2 a T8, com encantamentos
+            const tiersNormais = [2, 3, 4, 5, 6, 7, 8];
+            tiersNormais.forEach(tier => {
+                const grupoTier = {
+                    nome: `Bolsa T${tier}`,
+                    tier: tier,
+                    items: []
+                };
+
+                // Encantamentos 0-4 (.0, .1, .2, .3, .4)
+                for (let encantamento = 0; encantamento <= 4; encantamento++) {
+                    let itemId = `T${tier}_BAG`;
+                    if (encantamento > 0) {
+                        itemId += `@${encantamento}`;
+                    }
+                    
+                    grupoTier.items.push({
+                        id: itemId,
+                        nome: `T${tier} Bolsa Normal ${encantamento > 0 ? `.${encantamento}` : ''}`,
+                        encantamento: encantamento
+                    });
+                }
+
+                bolsas.normal.items.push(grupoTier);
+            });
+
+            // Bolsas de insight: T4 a T8, com encantamentos
+            const tiersInsight = [4, 5, 6, 7, 8];
+            tiersInsight.forEach(tier => {
+                const grupoTier = {
+                    nome: `Bolsa de Insight T${tier}`,
+                    tier: tier,
+                    items: []
+                };
+
+                // Encantamentos 0-4 (.0, .1, .2, .3, .4)
+                for (let encantamento = 0; encantamento <= 4; encantamento++) {
+                    let itemId = `T${tier}_BAG_INSIGHT`;
+                    if (encantamento > 0) {
+                        itemId += `@${encantamento}`;
+                    }
+                    
+                    grupoTier.items.push({
+                        id: itemId,
+                        nome: `T${tier} Bolsa de Insight ${encantamento > 0 ? `.${encantamento}` : ''}`,
+                        encantamento: encantamento
+                    });
+                }
+
+                bolsas.insight.items.push(grupoTier);
+            });
+        }
+
+        // Função para gerar os itens de recursos refinados
+        function gerarRecursosRefinados() {
+            const tipos = ['CLOTH', 'LEATHER', 'METALBAR', 'STONEBLOCK', 'PLANKS'];
+            const tiers = [2, 3, 4, 5, 6, 7, 8];
+
+            tipos.forEach(tipo => {
+                const tipoLower = tipo.toLowerCase();
+                const tipoKey = tipo === 'METALBAR' ? 'metalbars' : tipo === 'STONEBLOCK' ? 'stoneblock' : tipoLower;
+                
+                tiers.forEach(tier => {
+                    // Grupo para cada tier
+                    const grupoTier = {
+                        nome: `${recursosRefinados[tipoKey].nome} T${tier}`,
+                        tier: tier,
+                        items: []
+                    };
+
+                    // Definir qualidades baseado no tier
+                    let qualidades;
+                    if (tier === 2 || tier === 3) {
+                        // T2 e T3 não têm encantamentos
+                        qualidades = [''];
+                    } else {
+                        // T4+ têm encantamentos (.0, .1, .2, .3, .4)
+                        qualidades = ['', '@1', '@2', '@3', '@4'];
+                    }
+
+                    qualidades.forEach((qualidade, idx) => {
+                        let itemId;
+                        if (qualidade === '') {
+                            // Item base
+                            itemId = `T${tier}_${tipo}`;
+                        } else {
+                            // Item encantado usa formato LEVEL{level}@{level}
+                            const level = qualidade.replace('@', '');
+                            itemId = `T${tier}_${tipo}_LEVEL${level}@${level}`;
+                        }
+                        
+                        const qualidadeNome = qualidade ? qualidade.replace('@', '.') : '.0';
+                        
+                        grupoTier.items.push({
+                            id: itemId,
+                            nome: `T${tier} ${recursosRefinados[tipoKey].nome} ${tier}${qualidadeNome}`,
+                            qualidade: idx
+                        });
+                    });
+
+                    recursosRefinados[tipoKey].items.push(grupoTier);
+                });
+            });
+        }
+
+        // Função para gerar os itens de recursos
+        function gerarRecursos() {
+            const tipos = ['WOOD', 'FIBER', 'HIDE', 'ORE', 'ROCK'];
+            const tiers = [2, 3, 4, 5, 6, 7, 8];
+
+            tipos.forEach(tipo => {
+                const tipoLower = tipo.toLowerCase();
+                tiers.forEach(tier => {
+                    // Grupo para cada tier
+                    const grupoTier = {
+                        nome: `${recursos[tipoLower].nome} T${tier}`,
+                        tier: tier,
+                        items: []
+                    };
+
+                    // Definir qualidades baseado no tier
+                    let qualidades;
+                    if (tier === 2 || tier === 3) {
+                        // T2 e T3 não têm encantamentos
+                        qualidades = [''];
+                    } else {
+                        // T4+ têm encantamentos (.0, .1, .2, .3, .4)
+                        qualidades = ['', '@1', '@2', '@3', '@4'];
+                    }
+
+                    qualidades.forEach((qualidade, idx) => {
+                        let itemId;
+                        if (qualidade === '') {
+                            // Item base
+                            itemId = `T${tier}_${tipo}`;
+                        } else {
+                            // Item encantado usa formato LEVEL{level}@{level}
+                            const level = qualidade.replace('@', '');
+                            itemId = `T${tier}_${tipo}_LEVEL${level}@${level}`;
+                        }
+                        
+                        const qualidadeNome = qualidade ? qualidade.replace('@', '.') : '.0';
+                        
+                        grupoTier.items.push({
+                            id: itemId,
+                            nome: `T${tier} ${recursos[tipoLower].nome} ${tier}${qualidadeNome}`,
+                            qualidade: idx
+                        });
+                    });
+
+                    recursos[tipoLower].items.push(grupoTier);
+                });
+            });
+        }
+
+        // Função para abrir modal principal com todas as categorias
+        function abrirModalPrincipal() {
+            const modal = document.getElementById('modalItens');
+            let html = `
+                <div class='modal-bg' onclick='fecharModal(event)'>
+                    <div class='modal'>
+                        <span class='modal-close' onclick='fecharModal(event)'>&times;</span>
+                        <div class='modal-title'>Selecione uma categoria</div>
+                        <div class='modal-list' style='display:flex;flex-wrap:wrap;justify-content:center;gap:24px;padding:32px 0;'>
+            `;
+            
+            // Categoria Recursos
+            html += `
+                <div class='modal-item' style='width:160px;height:100px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-direction:column;cursor:pointer;' onclick='abrirModalRecursos()'>
+                    <img src='https://render.albiononline.com/v1/item/T4_WOOD.png' alt='Recursos' title='Recursos' style='width:60px;height:60px;margin-bottom:8px;' />
+                    <div>Recursos</div>
+                </div>
+            `;
+            
+            // Categoria Recursos Refinados
+            html += `
+                <div class='modal-item' style='width:160px;height:100px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-direction:column;cursor:pointer;' onclick='abrirModalRecursosRefinados()'>
+                    <img src='https://render.albiononline.com/v1/item/T4_CLOTH.png' alt='Recursos Refinados' title='Recursos Refinados' style='width:60px;height:60px;margin-bottom:8px;' />
+                    <div>Recursos Refinados</div>
+                </div>
+            `;
+            
+            // Categoria Bolsas
+            html += `
+                <div class='modal-item' style='width:160px;height:100px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-direction:column;cursor:pointer;' onclick='abrirModalBolsas()'>
+                    <img src='https://render.albiononline.com/v1/item/T4_BAG.png' alt='Bolsas' title='Bolsas' style='width:60px;height:60px;margin-bottom:8px;' />
+                    <div>Bolsas</div>
+                </div>
+            `;
+            
+            // Aqui você pode adicionar outras categorias como Bolsas, Capas, Armas, etc.
+            // Exemplo:
+            // html += `
+            //     <div class='modal-item' style='width:160px;height:100px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-direction:column;cursor:pointer;' onclick='abrirModalBolsas()'>
+            //         <img src='https://render.albiononline.com/v1/item/T4_BAG.png' alt='Bolsas' title='Bolsas' style='width:60px;height:60px;margin-bottom:8px;' />
+            //         <div>Bolsas</div>
+            //     </div>
+            // `;
+            
+            html += `
+                        </div>
+                    </div>
+                </div>
+            `;
+            modal.innerHTML = html;
+            modal.style.display = 'block';
+        }
+
+        // Função para abrir modal principal de recursos
+        function abrirModalRecursos() {
+            const modal = document.getElementById('modalItens');
+            let html = `
+                <div class='modal-bg' onclick='fecharModal(event)'>
+                    <div class='modal'>
+                        <span class='modal-close' onclick='fecharModal(event)'>&times;</span>
+                        <div class='modal-title'>Recursos - Selecione um tipo</div>
+                        <div class='modal-list' style='display:flex;flex-wrap:wrap;justify-content:center;gap:24px;padding:32px 0;'>
+            `;
+            
+            Object.keys(recursos).forEach(tipo => {
+                const recurso = recursos[tipo];
+                html += `
+                    <div class='modal-item' style='width:160px;height:100px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-direction:column;cursor:pointer;' onclick='abrirModalTipoRecurso("${tipo}")'>
+                        <img src='https://render.albiononline.com/v1/item/${recurso.icon}.png' alt='${recurso.nome}' title='${recurso.nome}' style='width:60px;height:60px;margin-bottom:8px;' />
+                        <div>${recurso.nome}</div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                        </div>
+                        <button onclick='abrirModalPrincipal()' style='margin-top:10px;background:#d4af37;color:#222;border-radius:8px;padding:8px 16px;font-weight:bold;cursor:pointer;'>Voltar</button>
+                    </div>
+                </div>
+            `;
+            modal.innerHTML = html;
+            modal.style.display = 'block';
+        }
+
+        // Função para abrir modal principal de recursos refinados
+        function abrirModalRecursosRefinados() {
+            const modal = document.getElementById('modalItens');
+            let html = `
+                <div class='modal-bg' onclick='fecharModal(event)'>
+                    <div class='modal'>
+                        <span class='modal-close' onclick='fecharModal(event)'>&times;</span>
+                        <div class='modal-title'>Recursos Refinados - Selecione um tipo</div>
+                        <div class='modal-list' style='display:flex;flex-wrap:wrap;justify-content:center;gap:24px;padding:32px 0;'>
+            `;
+            
+            Object.keys(recursosRefinados).forEach(tipo => {
+                const recurso = recursosRefinados[tipo];
+                html += `
+                    <div class='modal-item' style='width:160px;height:100px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-direction:column;cursor:pointer;' onclick='abrirModalTipoRecursoRefinado("${tipo}")'>
+                        <img src='https://render.albiononline.com/v1/item/${recurso.icon}.png' alt='${recurso.nome}' title='${recurso.nome}' style='width:60px;height:60px;margin-bottom:8px;' />
+                        <div>${recurso.nome}</div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                        </div>
+                        <button onclick='abrirModalPrincipal()' style='margin-top:10px;background:#d4af37;color:#222;border-radius:8px;padding:8px 16px;font-weight:bold;cursor:pointer;'>Voltar</button>
+                    </div>
+                </div>
+            `;
+            modal.innerHTML = html;
+            modal.style.display = 'block';
+        }
+
+        // Função para abrir modal de tiers de um tipo específico
+        function abrirModalTipoRecurso(tipo) {
+            const recurso = recursos[tipo];
+            const modal = document.getElementById('modalItens');
+            let html = `
+                <div class='modal-bg' onclick='fecharModal(event)'>
+                    <div class='modal'>
+                        <span class='modal-close' onclick='fecharModal(event)'>&times;</span>
+                        <div class='modal-title'>${recurso.nome} - Selecione um tier</div>
+                        <div class='modal-list' style='display:flex;flex-wrap:wrap;max-height:400px;overflow:auto;padding:16px;gap:16px;'>
+            `;
+            
+            recurso.items.forEach((grupo, idx) => {
+                // Usa o primeiro item do grupo (qualidade base) para o ícone
+                const primeiroItem = grupo.items[0];
+                html += `
+                    <div class='modal-item' style='width:140px;height:90px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-direction:column;cursor:pointer;' onclick='abrirModalRecursoTier("${tipo}", ${idx})'>
+                        <img src='https://render.albiononline.com/v1/item/${primeiroItem.id}.png' alt='${grupo.nome}' title='${grupo.nome}' style='width:48px;height:48px;margin-bottom:4px;' onerror="this.onerror=null;this.src='https://render.albiononline.com/v1/item/${recurso.icon}.png';" />
+                        <div>${grupo.nome}</div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                        </div>
+                        <button onclick='abrirModalRecursos()' style='margin-top:10px;background:#d4af37;color:#222;border-radius:8px;padding:8px 16px;font-weight:bold;cursor:pointer;'>Voltar</button>
+                    </div>
+                </div>
+            `;
+            modal.innerHTML = html;
+            modal.style.display = 'block';
+        }
+
+        // Função para abrir modal dos encantamentos de um tier específico de recurso
+        function abrirModalRecursoTier(tipo, grupoIdx) {
+            const recurso = recursos[tipo];
+            const grupo = recurso.items[grupoIdx];
+            const modal = document.getElementById('modalItens');
+            let html = `
+                <div class='modal-bg' onclick='fecharModal(event)'>
+                    <div class='modal'>
+                        <span class='modal-close' onclick='fecharModal(event)'>&times;</span>
+                        <div class='modal-title'>${grupo.nome} - Selecione um encantamento</div>
+                        <div class='modal-list' style='display:flex;flex-wrap:wrap;max-height:400px;overflow:auto;padding:16px;gap:16px;'>
+            `;
+            
+            grupo.items.forEach(item => {
+                // Determinar a cor da borda baseada no encantamento
+                let borderColor = '#95a5a6'; // padrão cinza para .0
+                let encantamentoTexto = '.0';
+                
+                if (item.qualidade === 1) {
+                    borderColor = '#2ecc71'; // verde para .1
+                    encantamentoTexto = '.1';
+                } else if (item.qualidade === 2) {
+                    borderColor = '#3498db'; // azul para .2
+                    encantamentoTexto = '.2';
+                } else if (item.qualidade === 3) {
+                    borderColor = '#9b59b6'; // roxo para .3
+                    encantamentoTexto = '.3';
+                } else if (item.qualidade === 4) {
+                    borderColor = '#f39c12'; // laranja para .4
+                    encantamentoTexto = '.4';
+                }
+                
+                html += `
+                    <div class='modal-item' onclick='selecionarRecurso("${item.id}")' style='cursor:pointer;'>
+                        <div style='position:relative;'>
+                            <img src='https://render.albiononline.com/v1/item/${item.id}.png' alt='${item.nome}' title='${item.nome}' style='width:64px;height:64px;border:2px solid ${borderColor};border-radius:8px;' onerror="this.onerror=null;this.src='https://render.albiononline.com/v1/item/${recurso.icon}.png';this.style.border='2px solid ${borderColor}';" />
+                            <div style='position:absolute;bottom:-2px;right:-2px;background:${borderColor};color:#222;font-size:10px;font-weight:bold;padding:2px 4px;border-radius:4px;'>${encantamentoTexto}</div>
+                        </div>
+                        <div style='font-size:12px;text-align:center;margin-top:4px;'>${item.nome}</div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                        </div>
+                        <button onclick='abrirModalTipoRecurso("${tipo}")' style='margin-top:10px;background:#d4af37;color:#222;border-radius:8px;padding:8px 16px;font-weight:bold;cursor:pointer;'>Voltar</button>
+                    </div>
+                </div>
+            `;
+            modal.innerHTML = html;
+            modal.style.display = 'block';
+        }
+
+        // Função para abrir modal principal de bolsas
+        function abrirModalBolsas() {
+            const modal = document.getElementById('modalItens');
+            let html = `
+                <div class='modal-bg' onclick='fecharModal(event)'>
+                    <div class='modal'>
+                        <span class='modal-close' onclick='fecharModal(event)'>&times;</span>
+                        <div class='modal-title'>Bolsas - Selecione um tipo</div>
+                        <div class='modal-list' style='display:flex;flex-wrap:wrap;justify-content:center;gap:24px;padding:32px 0;'>
+            `;
+            
+            Object.keys(bolsas).forEach(tipo => {
+                const bolsa = bolsas[tipo];
+                html += `
+                    <div class='modal-item' style='width:160px;height:100px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-direction:column;cursor:pointer;' onclick='abrirModalTipoBolsa("${tipo}")'>
+                        <img src='https://render.albiononline.com/v1/item/${bolsa.icon}.png' alt='${bolsa.nome}' title='${bolsa.nome}' style='width:60px;height:60px;margin-bottom:8px;' />
+                        <div>${bolsa.nome}</div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                        </div>
+                        <button onclick='abrirModalPrincipal()' style='margin-top:10px;background:#d4af37;color:#222;border-radius:8px;padding:8px 16px;font-weight:bold;cursor:pointer;'>Voltar</button>
+                    </div>
+                </div>
+            `;
+            modal.innerHTML = html;
+            modal.style.display = 'block';
+        }
+
+        // Função para abrir modal de tiers de um tipo específico de bolsa
+        function abrirModalTipoBolsa(tipo) {
+            const bolsa = bolsas[tipo];
+            const modal = document.getElementById('modalItens');
+            let html = `
+                <div class='modal-bg' onclick='fecharModal(event)'>
+                    <div class='modal'>
+                        <span class='modal-close' onclick='fecharModal(event)'>&times;</span>
+                        <div class='modal-title'>${bolsa.nome} - Selecione um tier</div>
+                        <div class='modal-list' style='display:flex;flex-wrap:wrap;max-height:400px;overflow:auto;padding:16px;gap:16px;'>
+            `;
+            
+            bolsa.items.forEach((grupo, idx) => {
+                // Usa o primeiro item do grupo para o ícone (sem encantamento)
+                const primeiroItem = grupo.items.find(item => item.encantamento === 0);
+                html += `
+                    <div class='modal-item' style='width:140px;height:90px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-direction:column;cursor:pointer;' onclick='abrirModalBolsasTier("${tipo}", ${idx})'>
+                        <img src='https://render.albiononline.com/v1/item/${primeiroItem.id}.png' alt='${grupo.nome}' title='${grupo.nome}' style='width:48px;height:48px;margin-bottom:4px;' onerror="this.onerror=null;this.src='https://render.albiononline.com/v1/item/${bolsa.icon}.png';" />
+                        <div>${grupo.nome}</div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                        </div>
+                        <button onclick='abrirModalBolsas()' style='margin-top:10px;background:#d4af37;color:#222;border-radius:8px;padding:8px 16px;font-weight:bold;cursor:pointer;'>Voltar</button>
+                    </div>
+                </div>
+            `;
+            modal.innerHTML = html;
+            modal.style.display = 'block';
+        }
+
+        // Função para abrir modal dos encantamentos de um tier específico de bolsa
+        function abrirModalBolsasTier(tipo, grupoIdx) {
+            const bolsa = bolsas[tipo];
+            const grupo = bolsa.items[grupoIdx];
+            const modal = document.getElementById('modalItens');
+            let html = `
+                <div class='modal-bg' onclick='fecharModal(event)'>
+                    <div class='modal'>
+                        <span class='modal-close' onclick='fecharModal(event)'>&times;</span>
+                        <div class='modal-title'>${grupo.nome} - Selecione um encantamento</div>
+                        <div class='modal-list' style='display:flex;flex-wrap:wrap;max-height:400px;overflow:auto;padding:16px;gap:16px;'>
+            `;
+            
+            grupo.items.forEach(item => {
+                // Determinar a cor da borda baseada no encantamento
+                let borderColor = '#95a5a6'; // padrão cinza para .0
+                let encantamentoTexto = '.0';
+                
+                if (item.encantamento === 1) {
+                    borderColor = '#2ecc71'; // verde para .1
+                    encantamentoTexto = '.1';
+                } else if (item.encantamento === 2) {
+                    borderColor = '#3498db'; // azul para .2
+                    encantamentoTexto = '.2';
+                } else if (item.encantamento === 3) {
+                    borderColor = '#9b59b6'; // roxo para .3
+                    encantamentoTexto = '.3';
+                } else if (item.encantamento === 4) {
+                    borderColor = '#f39c12'; // laranja para .4
+                    encantamentoTexto = '.4';
+                }
+                
+                html += `
+                    <div class='modal-item' onclick='selecionarBolsa("${item.id}")' style='cursor:pointer;'>
+                        <div style='position:relative;'>
+                            <img src='https://render.albiononline.com/v1/item/${item.id}.png' alt='${item.nome}' title='${item.nome}' style='width:64px;height:64px;border:2px solid ${borderColor};border-radius:8px;' onerror="this.onerror=null;this.src='https://render.albiononline.com/v1/item/${bolsa.icon}.png';this.style.border='2px solid ${borderColor}';" />
+                            <div style='position:absolute;bottom:-2px;right:-2px;background:${borderColor};color:#222;font-size:10px;font-weight:bold;padding:2px 4px;border-radius:4px;'>${encantamentoTexto}</div>
+                        </div>
+                        <div style='font-size:12px;text-align:center;margin-top:4px;'>${item.nome}</div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                        </div>
+                        <button onclick='abrirModalTipoBolsa("${tipo}")' style='margin-top:10px;background:#d4af37;color:#222;border-radius:8px;padding:8px 16px;font-weight:bold;cursor:pointer;'>Voltar</button>
+                    </div>
+                </div>
+            `;
+            modal.innerHTML = html;
+            modal.style.display = 'block';
+        }
+
+        // Função para abrir modal de tiers de um tipo específico de recurso refinado
+        function abrirModalTipoRecursoRefinado(tipo) {
+            const recurso = recursosRefinados[tipo];
+            const modal = document.getElementById('modalItens');
+            let html = `
+                <div class='modal-bg' onclick='fecharModal(event)'>
+                    <div class='modal'>
+                        <span class='modal-close' onclick='fecharModal(event)'>&times;</span>
+                        <div class='modal-title'>${recurso.nome} - Selecione um tier</div>
+                        <div class='modal-list' style='display:flex;flex-wrap:wrap;max-height:400px;overflow:auto;padding:16px;gap:16px;'>
+            `;
+            
+            recurso.items.forEach((grupo, idx) => {
+                // Usa o primeiro item do grupo (qualidade base) para o ícone
+                const primeiroItem = grupo.items[0];
+                html += `
+                    <div class='modal-item' style='width:140px;height:90px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-direction:column;cursor:pointer;' onclick='abrirModalRecursoRefinadoTier("${tipo}", ${idx})'>
+                        <img src='https://render.albiononline.com/v1/item/${primeiroItem.id}.png' alt='${grupo.nome}' title='${grupo.nome}' style='width:48px;height:48px;margin-bottom:4px;' onerror="this.onerror=null;this.src='https://render.albiononline.com/v1/item/${recurso.icon}.png';" />
+                        <div>${grupo.nome}</div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                        </div>
+                        <button onclick='abrirModalRecursosRefinados()' style='margin-top:10px;background:#d4af37;color:#222;border-radius:8px;padding:8px 16px;font-weight:bold;cursor:pointer;'>Voltar</button>
+                    </div>
+                </div>
+            `;
+            modal.innerHTML = html;
+            modal.style.display = 'block';
+        }
+
+        // Função para abrir modal dos encantamentos de um tier específico de recurso refinado
+        function abrirModalRecursoRefinadoTier(tipo, grupoIdx) {
+            const recurso = recursosRefinados[tipo];
+            const grupo = recurso.items[grupoIdx];
+            const modal = document.getElementById('modalItens');
+            let html = `
+                <div class='modal-bg' onclick='fecharModal(event)'>
+                    <div class='modal'>
+                        <span class='modal-close' onclick='fecharModal(event)'>&times;</span>
+                        <div class='modal-title'>${grupo.nome} - Selecione um encantamento</div>
+                        <div class='modal-list' style='display:flex;flex-wrap:wrap;max-height:400px;overflow:auto;padding:16px;gap:16px;'>
+            `;
+            
+            grupo.items.forEach(item => {
+                // Determinar a cor da borda baseada no encantamento
+                let borderColor = '#95a5a6'; // padrão cinza para .0
+                let encantamentoTexto = '.0';
+                
+                if (item.qualidade === 1) {
+                    borderColor = '#2ecc71'; // verde para .1
+                    encantamentoTexto = '.1';
+                } else if (item.qualidade === 2) {
+                    borderColor = '#3498db'; // azul para .2
+                    encantamentoTexto = '.2';
+                } else if (item.qualidade === 3) {
+                    borderColor = '#9b59b6'; // roxo para .3
+                    encantamentoTexto = '.3';
+                } else if (item.qualidade === 4) {
+                    borderColor = '#f39c12'; // laranja para .4
+                    encantamentoTexto = '.4';
+                }
+                
+                html += `
+                    <div class='modal-item' onclick='selecionarRecursoRefinado("${item.id}")' style='cursor:pointer;'>
+                        <div style='position:relative;'>
+                            <img src='https://render.albiononline.com/v1/item/${item.id}.png' alt='${item.nome}' title='${item.nome}' style='width:64px;height:64px;border:2px solid ${borderColor};border-radius:8px;' onerror="this.onerror=null;this.src='https://render.albiononline.com/v1/item/${recurso.icon}.png';this.style.border='2px solid ${borderColor}';" />
+                            <div style='position:absolute;bottom:-2px;right:-2px;background:${borderColor};color:#222;font-size:10px;font-weight:bold;padding:2px 4px;border-radius:4px;'>${encantamentoTexto}</div>
+                        </div>
+                        <div style='font-size:12px;text-align:center;margin-top:4px;'>${item.nome}</div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                        </div>
+                        <button onclick='abrirModalTipoRecursoRefinado("${tipo}")' style='margin-top:10px;background:#d4af37;color:#222;border-radius:8px;padding:8px 16px;font-weight:bold;cursor:pointer;'>Voltar</button>
+                    </div>
+                </div>
+            `;
+            modal.innerHTML = html;
+            modal.style.display = 'block';
+        }
+
+        // Função para selecionar um recurso
+        function selecionarRecurso(itemId) {
+            // Verificar se está no modo flip
+            if (window.flipMode) {
+                document.getElementById('flip-item').value = itemId;
+                window.flipMode = false; // Resetar o modo flip
+                fecharModal();
+                console.log('Recurso selecionado para flip:', itemId);
+            } else {
+                document.getElementById('item').value = itemId;
+                fecharModal();
+                console.log('Recurso selecionado:', itemId);
+                // Buscar preços automaticamente
+                buscarPrecos(itemId);
+            }
+        }
+
+        // Função para selecionar um recurso refinado
+        function selecionarRecursoRefinado(itemId) {
+            // Verificar se está no modo flip
+            if (window.flipMode) {
+                document.getElementById('flip-item').value = itemId;
+                window.flipMode = false; // Resetar o modo flip
+                fecharModal();
+                console.log('Recurso refinado selecionado para flip:', itemId);
+            } else {
+                document.getElementById('item').value = itemId;
+                fecharModal();
+                console.log('Recurso refinado selecionado:', itemId);
+                // Buscar preços automaticamente
+                buscarPrecos(itemId);
+            }
+        }
+
+        // Função para selecionar uma bolsa
+        function selecionarBolsa(itemId) {
+            // Verificar se está no modo flip
+            if (window.flipMode) {
+                document.getElementById('flip-item').value = itemId;
+                window.flipMode = false; // Resetar o modo flip
+                fecharModal();
+                console.log('Bolsa selecionada para flip:', itemId);
+            } else {
+                document.getElementById('item').value = itemId;
+                fecharModal();
+                console.log('Bolsa selecionada:', itemId);
+                // Buscar preços automaticamente
+                buscarPrecos(itemId);
+            }
+        }
+
+        // Função para buscar preços (chamada pelo botão)
+        function buscarPreco() {
+            const itemId = document.getElementById('item').value;
+            if (!itemId || itemId === 'Nenhum item selecionado') {
+                alert('Por favor, selecione um item primeiro.');
+                return;
+            }
+            console.log('Buscando preço para:', itemId);
+            buscarPrecos(itemId);
+        }
+
+        // Função para verificar se um item é um recurso (base ou refinado)
+        function isRecurso(itemId) {
+            const tiposRecursos = ['WOOD', 'FIBER', 'HIDE', 'ORE', 'ROCK'];
+            const tiposRecursosRefinados = ['CLOTH', 'LEATHER', 'METALBAR', 'STONEBLOCK', 'PLANKS'];
+            // Bolsas NÃO são recursos - elas têm qualidades normais (1-5)
+            return tiposRecursos.some(tipo => itemId.includes(tipo)) || tiposRecursosRefinados.some(tipo => itemId.includes(tipo));
+        }
+
+        // Função para buscar preços na API
+        async function buscarPrecos(itemId) {
+            const location = document.getElementById('location').value;
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                resultDiv.innerHTML = '<div style="text-align:center;color:#f39c12;">🔄 Buscando preços...</div>';
+                
+                let url = '';
+                if (location === 'ALL') {
+                    url = `https://www.albion-online-data.com/api/v2/stats/prices/${itemId}?locations=Caerleon,Bridgewatch,Martlock,Fort Sterling,Lymhurst,Thetford,Black Market`;
+                } else {
+                    url = `https://www.albion-online-data.com/api/v2/stats/prices/${itemId}?locations=${encodeURIComponent(location)}`;
+                }
+                
+                console.log('Buscando preços:', url);
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (!Array.isArray(data) || data.length === 0) {
+                    resultDiv.innerHTML = '<div style="text-align:center;color:#e74c3c;">❌ Nenhum dado encontrado para este item.</div>';
+                    return;
+                }
+                
+                // Exibir resultados
+                exibirResultados(data, itemId);
+                
+            } catch (error) {
+                console.error('Erro ao buscar preços:', error);
+                resultDiv.innerHTML = '<div style="text-align:center;color:#e74c3c;">❌ Erro ao buscar dados da API.</div>';
+            }
+        }
+
+        // Função para exibir os resultados
+        function exibirResultados(dados, itemId) {
+            const resultDiv = document.getElementById('result');
+            
+            // Filtrar dados para recursos (apenas qualidade NORMAL)
+            if (isRecurso(itemId)) {
+                dados = dados.filter(item => Number(item.quality) === 1);
+            }
+            
+            // Determinar imagem do item
+            let itemIcon = itemId;
+            if (itemId.includes('WOOD')) itemIcon = 'T4_WOOD';
+            else if (itemId.includes('FIBER')) itemIcon = 'T4_FIBER'; 
+            else if (itemId.includes('HIDE')) itemIcon = 'T4_HIDE';
+            else if (itemId.includes('ORE')) itemIcon = 'T4_ORE';
+            else if (itemId.includes('ROCK')) itemIcon = 'T4_ROCK';
+            
+            let html = `
+                <div style="text-align:center;margin:20px 0;">
+                    <img src="https://render.albiononline.com/v1/item/${itemId}.png" alt="${itemId}" style="width:64px;height:64px;background:#222;border-radius:10px;border:2px solid #d4af37;" onerror="this.onerror=null;this.src='https://render.albiononline.com/v1/item/${itemIcon}.png';">
+                    <h3 style="color:#d4af37;margin:10px 0;">${itemId}</h3>
+                </div>
+                <table style="width:100%;margin-top:20px;">
+                    <tr>
+                        <th>🏰 Cidade</th>
+                        ${!isRecurso(itemId) ? '<th>⭐ Qualidade</th>' : ''}
+                        <th title="Comprar Instantâneo - Menor preço para comprar">💰 COMPRAR RÁPIDO</th>
+                        <th title="Vender Instantâneo - Maior preço para vender">💎 VENDER RÁPIDO</th>
+                        <th>📅 Data Buy</th>
+                        <th>📅 Data Sell</th>
+                    </tr>
+            `;
+            
+            dados.forEach(item => {
+                const qualidadeTexto = getQualidadeTexto(item.quality);
+                const qualidadeClass = getQualidadeClass(item.quality);
+                const cidadeNome = item.city || 'Desconhecida';
+                
+                html += `
+                    <tr>
+                        <td><strong>${cidadeNome}</strong></td>
+                        ${!isRecurso(itemId) ? `<td class="${qualidadeClass}">${qualidadeTexto}</td>` : ''}
+                        <td class="price">${item.sell_price_min || '?'}</td>
+                        <td class="price">${item.buy_price_max || '?'}</td>
+                        <td class="date">${item.buy_price_min_date ? new Date(item.buy_price_min_date).toLocaleString('pt-BR') : '-'}</td>
+                        <td class="date">${item.sell_price_min_date ? new Date(item.sell_price_min_date).toLocaleString('pt-BR') : '-'}</td>
+                    </tr>
+                `;
+            });
+            
+            html += '</table>';
+            resultDiv.innerHTML = html;
+        }
+
+        // Funções auxiliares para qualidade
+        function getQualidadeTexto(quality) {
+            switch(Number(quality)) {
+                case 1: return 'Normal';
+                case 2: return 'Bom';
+                case 3: return 'Excepcional';
+                case 4: return 'Excelente';
+                case 5: return 'Obra Prima';
+                default: return '-';
+            }
+        }
+
+        function getQualidadeClass(quality) {
+            switch(Number(quality)) {
+                case 1: return 'quality-normal';
+                case 2: return 'quality-good';
+                case 3: return 'quality-exceptional';
+                case 4: return 'quality-excellent';
+                case 5: return 'quality-masterpiece';
+                default: return '';
+            }
+        }
+
+        // Função para fechar modal
+        function fecharModal(e) {
+            if (e && !e.target.classList.contains('modal-bg') && !e.target.classList.contains('modal-close')) {
+                return;
+            }
+            document.getElementById('modalItens').style.display = 'none';
+        }
+
+        // Função para navegar entre abas
+        function abrirAba(abaId) {
+            // Esconder todas as abas
+            const abas = document.querySelectorAll('.tab-content');
+            abas.forEach(aba => aba.classList.remove('active'));
+            
+            // Remover classe active de todos os botões
+            const botoes = document.querySelectorAll('.tab-button');
+            botoes.forEach(botao => botao.classList.remove('active'));
+            
+            // Mostrar a aba selecionada
+            document.getElementById(abaId).classList.add('active');
+            
+            // Ativar o botão correspondente
+            event.target.classList.add('active');
+        }
+
+        // Funções para Flip de Mercado
+        function iniciarFlipAutomatico() {
+            const resultDiv = document.getElementById('flip-resultados');
+            resultDiv.innerHTML = `
+                <div style="background: #34495e; color: #ecf0f1; padding: 25px; border-radius: 12px; margin: 20px auto; max-width: 600px; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
+                    <h4 style="color: #d4af37; margin-bottom: 20px; text-align: center;">🤖 Flip Automático</h4>
+                    <p style="text-align: center; margin-bottom: 25px; color: #bdc3c7;">Configure a margem de lucro e deixe o sistema encontrar oportunidades automaticamente:</p>
+                    
+                    <div style="text-align: left;">
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; color: #d4af37; font-weight: bold;">Margem Mínima de Lucro (%):</label>
+                            <input type="number" id="flip-auto-margem" placeholder="15" style="width: 100%; padding: 10px; border-radius: 6px; border: 2px solid #d4af37; background: #2c3e50; color: #ecf0f1;" value="15">
+                        </div>
+                        
+                        <div style="margin-bottom: 25px;">
+                            <label style="display: block; margin-bottom: 12px; color: #d4af37; font-weight: bold;">Categorias a Analisar:</label>
+                            <div style="display: grid; grid-template-columns: 1fr; gap: 8px;">
+                                <label style="color: #ecf0f1;"><input type="checkbox" id="auto-recursos" checked style="margin-right: 8px;"> Recursos (T4-T8)</label>
+                                <label style="color: #ecf0f1;"><input type="checkbox" id="auto-refinados" checked style="margin-right: 8px;"> Recursos Refinados (T4-T8)</label>
+                                <label style="color: #ecf0f1;"><input type="checkbox" id="auto-bolsas" style="margin-right: 8px;"> Bolsas (T4-T8)</label>
+                            </div>
+                        </div>
+                        
+                        <button onclick="executarFlipAutomatico()" style="background: #d4af37; color: #222; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px;">
+                            🚀 Iniciar Busca Automática
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Área de resultados -->
+                <div id="flip-auto-resultados" style="margin-top: 20px;"></div>
+            `;
+        }
+
+        function abrirFlipManual() {
+            const resultDiv = document.getElementById('flip-resultados');
+            resultDiv.innerHTML = `
+                <div style="background: #34495e; color: #ecf0f1; padding: 25px; border-radius: 12px; margin: 20px auto; max-width: 600px; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
+                    <h4 style="color: #d4af37; margin-bottom: 20px; text-align: center;">🎯 Flip Manual</h4>
+                    <p style="text-align: center; margin-bottom: 25px; color: #bdc3c7;">Configure os parâmetros para busca manual de oportunidades:</p>
+                    
+                    <div style="text-align: left;">
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; color: #d4af37; font-weight: bold;">Item Selecionado:</label>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <input type="text" id="flip-item" placeholder="Nenhum item selecionado" readonly style="flex: 1; padding: 10px; border-radius: 6px; border: 2px solid #d4af37; background: #2c3e50; color: #ecf0f1;">
+                                <button onclick="abrirModalPrincipalFlip()" style="background: #d4af37; color: #222; border: none; padding: 10px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; white-space: nowrap;">
+                                    Selecionar Item
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; color: #d4af37; font-weight: bold;">Margem Mínima de Lucro (%):</label>
+                            <input type="number" id="flip-margem" placeholder="10" style="width: 100%; padding: 10px; border-radius: 6px; border: 2px solid #d4af37; background: #2c3e50; color: #ecf0f1;" value="10">
+                        </div>
+                        
+                        <div style="margin-bottom: 25px;">
+                            <label style="display: block; margin-bottom: 12px; color: #d4af37; font-weight: bold;">Cidades para Comparar:</label>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                                <label style="color: #ecf0f1;"><input type="checkbox" id="cidade-caerleon" checked style="margin-right: 8px;"> Caerleon</label>
+                                <label style="color: #ecf0f1;"><input type="checkbox" id="cidade-bridgewatch" checked style="margin-right: 8px;"> Bridgewatch</label>
+                                <label style="color: #ecf0f1;"><input type="checkbox" id="cidade-martlock" checked style="margin-right: 8px;"> Martlock</label>
+                                <label style="color: #ecf0f1;"><input type="checkbox" id="cidade-fortsterling" checked style="margin-right: 8px;"> Fort Sterling</label>
+                                <label style="color: #ecf0f1;"><input type="checkbox" id="cidade-lymhurst" checked style="margin-right: 8px;"> Lymhurst</label>
+                                <label style="color: #ecf0f1;"><input type="checkbox" id="cidade-thetford" checked style="margin-right: 8px;"> Thetford</label>
+                            </div>
+                        </div>
+                        
+                        <button onclick="buscarFlipManual()" style="background: #d4af37; color: #222; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px;">
+                            🔍 Buscar Oportunidades
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function buscarFlipManual() {
+            const itemSelecionado = document.getElementById('flip-item').value;
+            const margem = parseFloat(document.getElementById('flip-margem').value) || 10;
+            
+            if (!itemSelecionado || itemSelecionado === 'Nenhum item selecionado') {
+                alert('Por favor, selecione um item primeiro!');
+                return;
+            }
+            
+            // Coletar cidades selecionadas
+            const cidadesSelecionadas = [];
+            if (document.getElementById('cidade-caerleon').checked) cidadesSelecionadas.push('Caerleon');
+            if (document.getElementById('cidade-bridgewatch').checked) cidadesSelecionadas.push('Bridgewatch');
+            if (document.getElementById('cidade-martlock').checked) cidadesSelecionadas.push('Martlock');
+            if (document.getElementById('cidade-fortsterling').checked) cidadesSelecionadas.push('Fort Sterling');
+            if (document.getElementById('cidade-lymhurst').checked) cidadesSelecionadas.push('Lymhurst');
+            if (document.getElementById('cidade-thetford').checked) cidadesSelecionadas.push('Thetford');
+            
+            if (cidadesSelecionadas.length < 2) {
+                alert('Selecione pelo menos 2 cidades para comparar preços!');
+                return;
+            }
+            
+            const resultDiv = document.getElementById('flip-resultados');
+            const existingContent = resultDiv.innerHTML;
+            
+            // Mostrar loading
+            resultDiv.innerHTML = existingContent + `
+                <div id="flip-loading" style="background: #34495e; color: #ecf0f1; padding: 20px; border-radius: 12px; margin: 20px auto; max-width: 600px; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
+                    <h5 style="color: #d4af37; margin-bottom: 15px; text-align: center;">🔍 Analisando Oportunidades de Flip...</h5>
+                    <div style="background: #2c3e50; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <p style="margin: 5px 0;"><strong style="color: #d4af37;">Item:</strong> ${itemSelecionado}</p>
+                        <p style="margin: 5px 0;"><strong style="color: #d4af37;">Margem mínima:</strong> ${margem}%</p>
+                        <p style="margin: 5px 0;"><strong style="color: #d4af37;">Cidades:</strong> ${cidadesSelecionadas.join(', ')}</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="background: #2c3e50; height: 6px; border-radius: 3px; overflow: hidden;">
+                            <div style="background: #d4af37; height: 100%; width: 60%; border-radius: 3px; animation: pulse 2s infinite;"></div>
+                        </div>
+                        <p style="margin-top: 12px; font-size: 14px; color: #bdc3c7;">Buscando preços em todas as cidades...</p>
+                    </div>
+                </div>
+            `;
+            
+            // Buscar preços do item em todas as cidades selecionadas
+            buscarOportunidadesFlip(itemSelecionado, cidadesSelecionadas, margem);
+        }
+
+        async function buscarOportunidadesFlip(itemId, cidades, margemMinima) {
+            try {
+                // Construir URL da API com todas as cidades
+                const cidadesUrl = cidades.join(',');
+                const url = `https://www.albion-online-data.com/api/v2/stats/prices/${itemId}?locations=${cidadesUrl}`;
+                
+                console.log('Buscando preços para flip:', url);
+                
+                const response = await fetch(url);
+                const dados = await response.json();
+                
+                // Filtrar dados para recursos (apenas qualidade NORMAL)
+                let dadosFiltrados = dados;
+                if (isRecurso(itemId)) {
+                    dadosFiltrados = dados.filter(item => Number(item.quality) === 1);
+                }
+                
+                // Analisar oportunidades de flip
+                const oportunidades = analisarOportunidadesFlip(dadosFiltrados, margemMinima);
+                
+                // Exibir resultados
+                exibirResultadosFlip(itemId, oportunidades, margemMinima);
+                
+            } catch (error) {
+                console.error('Erro ao buscar dados para flip:', error);
+                document.getElementById('flip-loading').innerHTML = `
+                    <h5>❌ Erro ao buscar dados</h5>
+                    <p>Não foi possível conectar com a API do Albion Online.</p>
+                `;
+            }
+        }
+
+        function analisarOportunidadesFlip(dados, margemMinima) {
+            const oportunidades = [];
+            
+            // Agrupar dados por qualidade (para itens que têm qualidades)
+            const dadosPorQualidade = {};
+            dados.forEach(item => {
+                const qualidade = item.quality || 1;
+                if (!dadosPorQualidade[qualidade]) {
+                    dadosPorQualidade[qualidade] = [];
+                }
+                dadosPorQualidade[qualidade].push(item);
+            });
+            
+            // Analisar cada qualidade separadamente
+            Object.keys(dadosPorQualidade).forEach(qualidade => {
+                const dadosQualidade = dadosPorQualidade[qualidade];
+                
+                // Para cada cidade, verificar oportunidades de compra
+                dadosQualidade.forEach(cidadeCompra => {
+                    const precoCompra = cidadeCompra.sell_price_min; // Preço para comprar (sell_price_min)
+                    
+                    if (!precoCompra || precoCompra === 0) return;
+                    
+                    // Comparar com outras cidades para venda
+                    dadosQualidade.forEach(cidadeVenda => {
+                        const precoVenda = cidadeVenda.buy_price_max; // Preço para vender (buy_price_max)
+                        
+                        if (!precoVenda || precoVenda === 0 || cidadeCompra.city === cidadeVenda.city) return;
+                        
+                        // Calcular margem de lucro
+                        const lucro = precoVenda - precoCompra;
+                        const margemPercentual = ((lucro / precoCompra) * 100);
+                        
+                        if (margemPercentual >= margemMinima) {
+                            oportunidades.push({
+                                cidadeCompra: cidadeCompra.city,
+                                cidadeVenda: cidadeVenda.city,
+                                precoCompra: precoCompra,
+                                precoVenda: precoVenda,
+                                lucro: lucro,
+                                margem: margemPercentual,
+                                qualidade: qualidade,
+                                dataCompra: cidadeCompra.sell_price_min_date,
+                                dataVenda: cidadeVenda.buy_price_max_date
+                            });
+                        }
+                    });
+                });
+            });
+            
+            // Ordenar por margem de lucro (maior primeiro)
+            return oportunidades.sort((a, b) => b.margem - a.margem);
+        }
+
+        function exibirResultadosFlip(itemId, oportunidades, margemMinima) {
+            const loadingDiv = document.getElementById('flip-loading');
+            
+            if (oportunidades.length === 0) {
+                loadingDiv.innerHTML = `
+                    <div style="background: #34495e; color: #ecf0f1; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
+                        <h5 style="color: #e74c3c; margin-bottom: 15px;">😔 Nenhuma Oportunidade Encontrada</h5>
+                        <p style="color: #bdc3c7;">Não foram encontradas oportunidades de flip com margem mínima de ${margemMinima}%</p>
+                        <p style="font-size: 14px; margin-top: 15px; color: #95a5a6;">Tente reduzir a margem mínima ou selecionar mais cidades.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = `
+                <div style="background: #34495e; color: #ecf0f1; padding: 20px; border-radius: 12px; max-width: 800px; margin: 0 auto; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
+                    <h5 style="color: #d4af37; margin-bottom: 15px; text-align: center;">🎯 Oportunidades de Flip Encontradas (${oportunidades.length})</h5>
+                    <div style="background: #2c3e50; padding: 12px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+                        <strong style="color: #d4af37;">Item:</strong> ${itemId} | <strong style="color: #d4af37;">Margem mínima:</strong> ${margemMinima}%
+                    </div>
+                    <div style="display: grid; gap: 15px;">
+            `;
+            
+            // Mostrar top 5 oportunidades
+            const topOportunidades = oportunidades.slice(0, 5);
+            
+            topOportunidades.forEach((op, index) => {
+                const qualidadeTexto = getQualidadeTexto(op.qualidade);
+                const qualidadeClass = getQualidadeClass(op.qualidade);
+                
+                html += `
+                    <div style="background: #2c3e50; border: 2px solid #d4af37; border-radius: 10px; padding: 16px; position: relative; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="background: #d4af37; color: #222; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">
+                                    ${index + 1}
+                                </span>
+                                ${!isRecurso(itemId) ? `<span class="${qualidadeClass}" style="padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;">${qualidadeTexto}</span>` : ''}
+                            </div>
+                            <div style="background: #27ae60; color: white; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 16px;">
+                                +${op.margem.toFixed(1)}%
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                            <div style="background: #e74c3c; padding: 10px; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 12px; margin-bottom: 4px; opacity: 0.9;">💰 COMPRAR EM</div>
+                                <div style="font-weight: bold; font-size: 14px;">${op.cidadeCompra}</div>
+                                <div style="font-size: 16px; margin-top: 4px;">${op.precoCompra.toLocaleString()}</div>
+                            </div>
+                            <div style="background: #27ae60; padding: 10px; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 12px; margin-bottom: 4px; opacity: 0.9;">💎 VENDER EM</div>
+                                <div style="font-weight: bold; font-size: 14px;">${op.cidadeVenda}</div>
+                                <div style="font-size: 16px; margin-top: 4px;">${op.precoVenda.toLocaleString()}</div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: #34495e; padding: 8px; border-radius: 6px; text-align: center;">
+                            <span style="color: #d4af37; font-weight: bold;">📈 Lucro: ${op.lucro.toLocaleString()} silver</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            if (oportunidades.length > 5) {
+                html += `
+                    <div style="background: #2c3e50; padding: 15px; border-radius: 8px; text-align: center; border: 2px dashed #95a5a6;">
+                        <p style="color: #bdc3c7; font-style: italic; margin: 0;">E mais ${oportunidades.length - 5} oportunidades disponíveis...</p>
+                    </div>
+                `;
+            }
+            
+            html += `</div></div>`;
+            
+            loadingDiv.innerHTML = html;
+        }
+
+        // Função para abrir o modal de seleção de itens para o flip
+        function abrirModalPrincipalFlip() {
+            // Definir contexto como flip para as funções de seleção
+            window.flipMode = true;
+            abrirModalPrincipal();
+        }
+
+        // Função para executar flip automático
+        async function executarFlipAutomatico() {
+            const margem = parseFloat(document.getElementById('flip-auto-margem').value) || 15;
+            const incluirRecursos = document.getElementById('auto-recursos').checked;
+            const incluirRefinados = document.getElementById('auto-refinados').checked;
+            const incluirBolsas = document.getElementById('auto-bolsas').checked;
+            
+            if (!incluirRecursos && !incluirRefinados && !incluirBolsas) {
+                alert('Selecione pelo menos uma categoria para analisar!');
+                return;
+            }
+            
+            const resultDiv = document.getElementById('flip-auto-resultados');
+            
+            // Resetar variáveis globais
+            window.todasOportunidadesAuto = [];
+            window.resultadosExibidos = 0;
+            window.cardDataCache = {}; // Cache para dados dos cards condensados
+            
+            // Mostrar container de resultados em tempo real
+            resultDiv.innerHTML = `
+                <div style="background: #34495e; color: #ecf0f1; padding: 20px; border-radius: 12px; margin: 20px auto; max-width: 1200px; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
+                    <h5 style="color: #d4af37; margin-bottom: 15px; text-align: center;">🔍 Análise em Andamento...</h5>
+                    <div style="background: #2c3e50; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: center;">
+                        <p style="margin: 5px 0;"><strong style="color: #d4af37;">Margem mínima:</strong> ${margem}%</p>
+                        <p style="margin: 5px 0;"><strong style="color: #d4af37;">Categorias:</strong> ${[incluirRecursos && 'Recursos', incluirRefinados && 'Refinados', incluirBolsas && 'Bolsas'].filter(Boolean).join(', ')}</p>
+                    </div>
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <div style="background: #2c3e50; height: 6px; border-radius: 3px; overflow: hidden;">
+                            <div id="progress-bar" style="background: #d4af37; height: 100%; width: 0%; border-radius: 3px; transition: width 0.3s ease;"></div>
+                        </div>
+                        <p id="progress-text" style="margin-top: 12px; font-size: 14px; color: #bdc3c7;">Preparando análise...</p>
+                        <p id="encontrados-counter" style="margin-top: 8px; font-size: 14px; color: #27ae60; font-weight: bold;">Oportunidades encontradas: 0</p>
+                    </div>
+                    
+                    <!-- Container para resultados em tempo real -->
+                    <div id="resultados-tempo-real" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-top: 20px;"></div>
+                    
+                    <!-- Botão carregar mais (inicialmente oculto) -->
+                    <div id="carregar-mais-container" style="text-align: center; margin-top: 20px; display: none;">
+                        <button onclick="carregarMaisResultados()" style="background: #d4af37; color: #222; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                            📄 Carregar Mais Resultados
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Gerar lista de itens para analisar
+            const itensParaAnalisar = gerarListaItensAutomatico(incluirRecursos, incluirRefinados, incluirBolsas);
+            
+            // Analisar cada item em tempo real
+            let itemProcessado = 0;
+            
+            for (const item of itensParaAnalisar) {
+                try {
+                    document.getElementById('progress-text').textContent = `Analisando ${item.nome}... (${itemProcessado + 1}/${itensParaAnalisar.length})`;
+                    document.getElementById('progress-bar').style.width = `${((itemProcessado + 1) / itensParaAnalisar.length) * 100}%`;
+                    
+                    const oportunidades = await analisarItemAutomatico(item.id, margem);
+                    
+                    // Se encontrou oportunidades, adicionar informações do item e mostrar imediatamente
+                    if (oportunidades.length > 0) {
+                        oportunidades.forEach(op => {
+                            op.itemNome = item.nome;
+                            op.itemId = item.id;
+                            op.itemTipo = item.tipo;
+                        });
+                        
+                        // Adicionar ao array global
+                        window.todasOportunidadesAuto.push(...oportunidades);
+                        
+                        // Mostrar imediatamente se ainda estamos nos primeiros 12 resultados
+                        if (window.resultadosExibidos < 12) {
+                            adicionarOportunidadesTempoReal(oportunidades);
+                        }
+                        
+                        // Atualizar contador
+                        document.getElementById('encontrados-counter').textContent = `Oportunidades encontradas: ${window.todasOportunidadesAuto.length}`;
+                    }
+                    
+                    itemProcessado++;
+                    
+                    // Pequena pausa para não sobrecarregar a API
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                    
+                } catch (error) {
+                    console.error(`Erro ao analisar ${item.nome}:`, error);
+                    itemProcessado++;
+                }
+            }
+            
+            // Análise concluída
+            document.getElementById('progress-text').textContent = `Análise concluída! Total de oportunidades: ${window.todasOportunidadesAuto.length}`;
+            
+            // Mostrar botão "Carregar Mais" se houver mais resultados
+            if (window.todasOportunidadesAuto.length > window.resultadosExibidos) {
+                document.getElementById('carregar-mais-container').style.display = 'block';
+            }
+            
+            // Se não encontrou nenhuma oportunidade
+            if (window.todasOportunidadesAuto.length === 0) {
+                document.getElementById('resultados-tempo-real').innerHTML = `
+                    <div style="grid-column: 1 / -1; background: #2c3e50; padding: 20px; border-radius: 8px; text-align: center; border: 2px dashed #95a5a6;">
+                        <h5 style="color: #e74c3c; margin-bottom: 15px;">😔 Nenhuma Oportunidade Encontrada</h5>
+                        <p style="color: #bdc3c7;">Não foram encontradas oportunidades com margem mínima de ${margem}%</p>
+                        <p style="font-size: 14px; margin-top: 15px; color: #95a5a6;">Tente reduzir a margem mínima ou incluir mais categorias.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Função para gerar lista de itens para análise automática
+        function gerarListaItensAutomatico(incluirRecursos, incluirRefinados, incluirBolsas) {
+            const itens = [];
+            const tiers = [4, 5, 6, 7, 8]; // T4 a T8
+            
+            if (incluirRecursos) {
+                const tiposRecursos = ['WOOD', 'FIBER', 'HIDE', 'ORE', 'ROCK'];
+                tiposRecursos.forEach(tipo => {
+                    tiers.forEach(tier => {
+                        // Item base (.0)
+                        itens.push({
+                            id: `T${tier}_${tipo}`,
+                            nome: `T${tier} ${tipo.toLowerCase()} .0`,
+                            tipo: 'recurso'
+                        });
+                        
+                        // Itens encantados (.1, .2, .3, .4)
+                        for (let encantamento = 1; encantamento <= 4; encantamento++) {
+                            itens.push({
+                                id: `T${tier}_${tipo}_LEVEL${encantamento}@${encantamento}`,
+                                nome: `T${tier} ${tipo.toLowerCase()} .${encantamento}`,
+                                tipo: 'recurso'
+                            });
+                        }
+                    });
+                });
+            }
+            
+            if (incluirRefinados) {
+                const tiposRefinados = [
+                    {tipo: 'CLOTH', nome: 'Tecido'},
+                    {tipo: 'LEATHER', nome: 'Couro'},
+                    {tipo: 'METALBAR', nome: 'Barra de Metal'},
+                    {tipo: 'STONEBLOCK', nome: 'Bloco de Pedra'},
+                    {tipo: 'PLANKS', nome: 'Tábua'}
+                ];
+                tiposRefinados.forEach(({tipo, nome}) => {
+                    tiers.forEach(tier => {
+                        // Item base (.0)
+                        itens.push({
+                            id: `T${tier}_${tipo}`,
+                            nome: `T${tier} ${nome} .0`,
+                            tipo: 'refinado'
+                        });
+                        
+                        // Itens encantados (.1, .2, .3, .4)
+                        for (let encantamento = 1; encantamento <= 4; encantamento++) {
+                            itens.push({
+                                id: `T${tier}_${tipo}_LEVEL${encantamento}@${encantamento}`,
+                                nome: `T${tier} ${nome} .${encantamento}`,
+                                tipo: 'refinado'
+                            });
+                        }
+                    });
+                });
+            }
+            
+            if (incluirBolsas) {
+                // Bolsas normais e de insight
+                tiers.forEach(tier => {
+                    if (tier >= 2) { // Bolsas normais T2+
+                        // Bolsa base (.0)
+                        itens.push({
+                            id: `T${tier}_BAG`,
+                            nome: `T${tier} Bolsa Normal .0`,
+                            tipo: 'bolsa'
+                        });
+                        
+                        // Bolsas encantadas (.1, .2, .3, .4)
+                        for (let encantamento = 1; encantamento <= 4; encantamento++) {
+                            itens.push({
+                                id: `T${tier}_BAG@${encantamento}`,
+                                nome: `T${tier} Bolsa Normal .${encantamento}`,
+                                tipo: 'bolsa'
+                            });
+                        }
+                    }
+                    
+                    if (tier >= 4) { // Bolsas de insight T4+
+                        // Bolsa de insight base (.0)
+                        itens.push({
+                            id: `T${tier}_BAG_INSIGHT`,
+                            nome: `T${tier} Bolsa de Insight .0`,
+                            tipo: 'bolsa'
+                        });
+                        
+                        // Bolsas de insight encantadas (.1, .2, .3, .4)
+                        for (let encantamento = 1; encantamento <= 4; encantamento++) {
+                            itens.push({
+                                id: `T${tier}_BAG_INSIGHT@${encantamento}`,
+                                nome: `T${tier} Bolsa de Insight .${encantamento}`,
+                                tipo: 'bolsa'
+                            });
+                        }
+                    }
+                });
+            }
+            
+            return itens;
+        }
+
+        // Função para analisar um item específico
+        async function analisarItemAutomatico(itemId, margemMinima) {
+            try {
+                const cidades = ['Caerleon', 'Bridgewatch', 'Martlock', 'Fort Sterling', 'Lymhurst', 'Thetford'];
+                const url = `https://www.albion-online-data.com/api/v2/stats/prices/${itemId}?locations=${cidades.join(',')}`;
+                
+                const response = await fetch(url);
+                const dados = await response.json();
+                
+                // Filtrar dados para recursos (apenas qualidade NORMAL)
+                let dadosFiltrados = dados;
+                if (isRecurso(itemId)) {
+                    dadosFiltrados = dados.filter(item => Number(item.quality) === 1);
+                }
+                
+                // Analisar oportunidades
+                return analisarOportunidadesFlip(dadosFiltrados, margemMinima);
+                
+            } catch (error) {
+                console.error(`Erro ao buscar dados para ${itemId}:`, error);
+                return [];
+            }
+        }
+
+        // Função para calcular tempo decorrido
+        function calcularTempoDecorrido(dataString) {
+            if (!dataString || dataString === "0001-01-01T00:00:00") return "N/A";
+            
+            const agora = new Date();
+            const dataInfo = new Date(dataString);
+            const diffMs = agora - dataInfo;
+            const diffMin = Math.floor(diffMs / 60000);
+            
+            if (diffMin < 1) return "Agora";
+            if (diffMin < 60) return `${diffMin}min`;
+            if (diffMin < 1440) return `${Math.floor(diffMin/60)}h`;
+            return `${Math.floor(diffMin/1440)}d`;
+        }
+
+        // Função para obter cor do tempo
+        function obterCorTempo(dataString) {
+            if (!dataString || dataString === "0001-01-01T00:00:00") return "#95a5a6";
+            
+            const agora = new Date();
+            const dataInfo = new Date(dataString);
+            const diffMs = agora - dataInfo;
+            const diffMin = Math.floor(diffMs / 60000);
+            
+            if (diffMin < 30) return "#27ae60"; // Verde - menos de 30min
+            if (diffMin < 120) return "#f39c12"; // Amarelo - 30min a 2h
+            return "#e74c3c"; // Vermelho - mais de 2h
+        }
+
+        // Função para agrupar oportunidades por item
+        function agruparOportunidadesPorItem(oportunidades) {
+            const grupos = {};
+            
+            oportunidades.forEach(op => {
+                const chaveItem = `${op.itemId}_${op.qualidade}`;
+                if (!grupos[chaveItem]) {
+                    grupos[chaveItem] = {
+                        itemId: op.itemId,
+                        itemNome: op.itemNome,
+                        qualidade: op.qualidade,
+                        oportunidades: []
+                    };
+                }
+                grupos[chaveItem].oportunidades.push(op);
+            });
+            
+            // Ordenar oportunidades dentro de cada grupo por margem
+            Object.values(grupos).forEach(grupo => {
+                grupo.oportunidades.sort((a, b) => b.margem - a.margem);
+            });
+            
+            return Object.values(grupos);
+        }
+
+        // Função para gerar mini-abas de margem
+        function gerarMiniAbas(oportunidades, cardId) {
+            return oportunidades.map((op, index) => {
+                const ativo = index === 0 ? 'ativo' : '';
+                return `
+                    <div class="mini-aba ${ativo}" onclick="mostrarDetalheMargem('${cardId}', ${index})" 
+                         style="background: ${index === 0 ? '#d4af37' : '#34495e'}; color: ${index === 0 ? '#000' : '#fff'}; 
+                                padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; 
+                                transition: all 0.3s ease; margin-right: 4px; display: inline-block;">
+                        +${op.margem.toFixed(1)}%
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Função para mostrar detalhes de uma margem específica
+        function mostrarDetalheMargem(cardId, indice) {
+            const card = document.getElementById(cardId);
+            const miniAbas = card.querySelectorAll('.mini-aba');
+            const detalhesContainer = card.querySelector('.detalhes-margem');
+            
+            // Atualizar abas visuais
+            miniAbas.forEach((aba, i) => {
+                if (i === indice) {
+                    aba.style.background = '#d4af37';
+                    aba.style.color = '#000';
+                } else {
+                    aba.style.background = '#34495e';
+                    aba.style.color = '#fff';
+                }
+            });
+            
+            // Obter dados da oportunidade selecionada
+            const cardData = window.cardDataCache[cardId];
+            const oportunidade = cardData.oportunidades[indice];
+            
+            const tempoCompra = calcularTempoDecorrido(oportunidade.dataCompra);
+            const tempoVenda = calcularTempoDecorrido(oportunidade.dataVenda);
+            
+            // Atualizar detalhes
+            detalhesContainer.innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;">
+                    <div style="background: #e74c3c; padding: 8px; border-radius: 4px; text-align: center;">
+                        <div style="font-size: 9px; margin-bottom: 2px; color: white; font-weight: bold;">Há ${tempoCompra}</div>
+                        <div style="font-size: 10px; margin-bottom: 2px; opacity: 0.9;">💰 COMPRAR</div>
+                        <div style="font-weight: bold; font-size: 11px;">${oportunidade.cidadeCompra}</div>
+                        <div style="font-size: 13px; margin-top: 2px;">${oportunidade.precoCompra.toLocaleString()}</div>
+                    </div>
+                    <div style="background: #27ae60; padding: 8px; border-radius: 4px; text-align: center;">
+                        <div style="font-size: 9px; margin-bottom: 2px; color: white; font-weight: bold;">Há ${tempoVenda}</div>
+                        <div style="font-size: 10px; margin-bottom: 2px; opacity: 0.9;">💎 VENDER</div>
+                        <div style="font-weight: bold; font-size: 11px;">${oportunidade.cidadeVenda}</div>
+                        <div style="font-size: 13px; margin-top: 2px;">${oportunidade.precoVenda.toLocaleString()}</div>
+                    </div>
+                </div>
+                
+                <div style="background: #34495e; padding: 6px; border-radius: 4px; text-align: center; margin-top: 8px;">
+                    <span style="color: #d4af37; font-weight: bold; font-size: 12px;">📈 ${oportunidade.lucro.toLocaleString()} silver</span>
+                </div>
+            `;
+        }
+
+        // Função para adicionar oportunidades em tempo real (versão condensada)
+        function adicionarOportunidadesTempoReal(oportunidades) {
+            const container = document.getElementById('resultados-tempo-real');
+            
+            // Agrupar oportunidades por item
+            const gruposItens = agruparOportunidadesPorItem(oportunidades);
+            
+            // Ordenar grupos pela melhor margem de cada grupo
+            gruposItens.sort((a, b) => b.oportunidades[0].margem - a.oportunidades[0].margem);
+            
+            // Pegar apenas os grupos que cabem na tela
+            const gruposParaMostrar = gruposItens.slice(0, 6 - Math.floor(window.resultadosExibidos / 2));
+            
+            gruposParaMostrar.forEach((grupo, index) => {
+                const cardId = `card-${Date.now()}-${index}`;
+                const qualidadeTexto = getQualidadeTexto(grupo.qualidade);
+                const qualidadeClass = getQualidadeClass(grupo.qualidade);
+                
+                // Salvar dados no cache
+                window.cardDataCache[cardId] = grupo;
+                
+                const miniAbas = gerarMiniAbas(grupo.oportunidades, cardId);
+                const primeiraOportunidade = grupo.oportunidades[0];
+                
+                const tempoCompra = calcularTempoDecorrido(primeiraOportunidade.dataCompra);
+                const tempoVenda = calcularTempoDecorrido(primeiraOportunidade.dataVenda);
+                
+                const cardHtml = `
+                    <div id="${cardId}" style="background: #2c3e50; border: 2px solid #d4af37; border-radius: 8px; padding: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); min-height: 300px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <div style="background: #d4af37; color: #222; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px;">
+                                ${window.resultadosExibidos + 1}
+                            </div>
+                            <div style="background: #3498db; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px;">
+                                ${grupo.oportunidades.length} opções
+                            </div>
+                        </div>
+                        
+                        <div style="text-align: center; margin-bottom: 10px;">
+                            <img src="https://render.albiononline.com/v1/item/${grupo.itemId}.png" alt="${grupo.itemNome}" style="width: 40px; height: 40px; border-radius: 4px; border: 1px solid #d4af37;" onerror="this.style.display='none';">
+                            <div style="font-weight: bold; color: #d4af37; font-size: 13px; margin-top: 4px;">${grupo.itemNome}</div>
+                            ${!isRecurso(grupo.itemId) ? `<span class="${qualidadeClass}" style="padding: 2px 4px; border-radius: 3px; font-size: 10px; font-weight: bold;">${qualidadeTexto}</span>` : ''}
+                        </div>
+                        
+                        <div style="margin-bottom: 8px;">
+                            <div style="font-size: 11px; color: #95a5a6; margin-bottom: 4px; text-align: center;">Margens encontradas:</div>
+                            <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 2px;">
+                                ${miniAbas}
+                            </div>
+                        </div>
+                        
+                        <div class="detalhes-margem">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;">
+                                <div style="background: #e74c3c; padding: 8px; border-radius: 4px; text-align: center;">
+                                    <div style="font-size: 9px; margin-bottom: 2px; color: white; font-weight: bold;">Há ${tempoCompra}</div>
+                                    <div style="font-size: 10px; margin-bottom: 2px; opacity: 0.9;">💰 COMPRAR</div>
+                                    <div style="font-weight: bold; font-size: 11px;">${primeiraOportunidade.cidadeCompra}</div>
+                                    <div style="font-size: 13px; margin-top: 2px;">${primeiraOportunidade.precoCompra.toLocaleString()}</div>
+                                </div>
+                                <div style="background: #27ae60; padding: 8px; border-radius: 4px; text-align: center;">
+                                    <div style="font-size: 9px; margin-bottom: 2px; color: white; font-weight: bold;">Há ${tempoVenda}</div>
+                                    <div style="font-size: 10px; margin-bottom: 2px; opacity: 0.9;">💎 VENDER</div>
+                                    <div style="font-weight: bold; font-size: 11px;">${primeiraOportunidade.cidadeVenda}</div>
+                                    <div style="font-size: 13px; margin-top: 2px;">${primeiraOportunidade.precoVenda.toLocaleString()}</div>
+                                </div>
+                            </div>
+                            
+                            <div style="background: #34495e; padding: 6px; border-radius: 4px; text-align: center; margin-top: 8px;">
+                                <span style="color: #d4af37; font-weight: bold; font-size: 12px;">📈 ${primeiraOportunidade.lucro.toLocaleString()} silver</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.insertAdjacentHTML('beforeend', cardHtml);
+                window.resultadosExibidos += 2; // Contabilizar como 2 porque mostra múltiplas oportunidades
+            });
+        }
+
+        // Função para carregar mais resultados (versão condensada)
+        function carregarMaisResultados() {
+            const container = document.getElementById('resultados-tempo-real');
+            
+            // Agrupar todas as oportunidades restantes por item
+            const todasOportunidades = window.todasOportunidadesAuto;
+            const gruposItens = agruparOportunidadesPorItem(todasOportunidades);
+            
+            // Ordenar grupos pela melhor margem
+            gruposItens.sort((a, b) => b.oportunidades[0].margem - a.oportunidades[0].margem);
+            
+            // Calcular quantos grupos já foram mostrados (dividir por 2 porque cada card vale 2)
+            const gruposJaMostrados = Math.floor(window.resultadosExibidos / 2);
+            const proximosGrupos = gruposItens.slice(gruposJaMostrados, gruposJaMostrados + 6);
+            
+            proximosGrupos.forEach((grupo, index) => {
+                const cardId = `card-${Date.now()}-${index}`;
+                const qualidadeTexto = getQualidadeTexto(grupo.qualidade);
+                const qualidadeClass = getQualidadeClass(grupo.qualidade);
+                
+                // Salvar dados no cache
+                window.cardDataCache[cardId] = grupo;
+                
+                const miniAbas = gerarMiniAbas(grupo.oportunidades, cardId);
+                const primeiraOportunidade = grupo.oportunidades[0];
+                
+                const tempoCompra = calcularTempoDecorrido(primeiraOportunidade.dataCompra);
+                const tempoVenda = calcularTempoDecorrido(primeiraOportunidade.dataVenda);
+                
+                const cardHtml = `
+                    <div id="${cardId}" style="background: #2c3e50; border: 2px solid #d4af37; border-radius: 8px; padding: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); min-height: 300px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <div style="background: #d4af37; color: #222; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px;">
+                                ${Math.floor(window.resultadosExibidos / 2) + index + 1}
+                            </div>
+                            <div style="background: #3498db; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px;">
+                                ${grupo.oportunidades.length} opções
+                            </div>
+                        </div>
+                        
+                        <div style="text-align: center; margin-bottom: 10px;">
+                            <img src="https://render.albiononline.com/v1/item/${grupo.itemId}.png" alt="${grupo.itemNome}" style="width: 40px; height: 40px; border-radius: 4px; border: 1px solid #d4af37;" onerror="this.style.display='none';">
+                            <div style="font-weight: bold; color: #d4af37; font-size: 13px; margin-top: 4px;">${grupo.itemNome}</div>
+                            ${!isRecurso(grupo.itemId) ? `<span class="${qualidadeClass}" style="padding: 2px 4px; border-radius: 3px; font-size: 10px; font-weight: bold;">${qualidadeTexto}</span>` : ''}
+                        </div>
+                        
+                        <div style="margin-bottom: 8px;">
+                            <div style="font-size: 11px; color: #95a5a6; margin-bottom: 4px; text-align: center;">Margens encontradas:</div>
+                            <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 2px;">
+                                ${miniAbas}
+                            </div>
+                        </div>
+                        
+                        <div class="detalhes-margem">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;">
+                                <div style="background: #e74c3c; padding: 8px; border-radius: 4px; text-align: center;">
+                                    <div style="font-size: 9px; margin-bottom: 2px; color: white; font-weight: bold;">Há ${tempoCompra}</div>
+                                    <div style="font-size: 10px; margin-bottom: 2px; opacity: 0.9;">💰 COMPRAR</div>
+                                    <div style="font-weight: bold; font-size: 11px;">${primeiraOportunidade.cidadeCompra}</div>
+                                    <div style="font-size: 13px; margin-top: 2px;">${primeiraOportunidade.precoCompra.toLocaleString()}</div>
+                                </div>
+                                <div style="background: #27ae60; padding: 8px; border-radius: 4px; text-align: center;">
+                                    <div style="font-size: 9px; margin-bottom: 2px; color: white; font-weight: bold;">Há ${tempoVenda}</div>
+                                    <div style="font-size: 10px; margin-bottom: 2px; opacity: 0.9;">💎 VENDER</div>
+                                    <div style="font-weight: bold; font-size: 11px;">${primeiraOportunidade.cidadeVenda}</div>
+                                    <div style="font-size: 13px; margin-top: 2px;">${primeiraOportunidade.precoVenda.toLocaleString()}</div>
+                                </div>
+                            </div>
+                            
+                            <div style="background: #34495e; padding: 6px; border-radius: 4px; text-align: center; margin-top: 8px;">
+                                <span style="color: #d4af37; font-weight: bold; font-size: 12px;">📈 ${primeiraOportunidade.lucro.toLocaleString()} silver</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.insertAdjacentHTML('beforeend', cardHtml);
+                window.resultadosExibidos += 2; // Contabilizar como 2 porque mostra múltiplas oportunidades
+            });
+            
+            // Esconder botão se não houver mais grupos para mostrar
+            const totalGrupos = gruposItens.length;
+            const gruposMostrados = Math.floor(window.resultadosExibidos / 2);
+            if (gruposMostrados >= totalGrupos) {
+                document.getElementById('carregar-mais-container').style.display = 'none';
+            }
+        }
+
+        // Variável global para armazenar o item selecionado no flip
+        let itemFlipSelecionado = '';
+
+        // Inicializar recursos quando a página carrega
+        document.addEventListener('DOMContentLoaded', function() {
+            gerarRecursos();
+            gerarRecursosRefinados();
+            gerarBolsas();
+        });
+    </script>
+</body>
+</html>
